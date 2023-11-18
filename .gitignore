@@ -1,0 +1,6 @@
+node_modules
+dist
+.env
+pm2.config.js
+yarn.lock
+package-lock.json
