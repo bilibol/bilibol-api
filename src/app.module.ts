@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { dbconfig } from './common/database/config.database';
 import { AdminModule } from './modules/admin/admin.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { env } from './common/config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dbconfig), AdminModule],
+  imports: [MongooseModule.forRoot(env.MONGO_URI), AdminModule],
 })
 export class AppModule {}
