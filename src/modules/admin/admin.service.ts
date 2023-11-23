@@ -3,33 +3,30 @@ import { compare, hash } from 'bcryptjs';
 import { CreateAdminDto, LoginDto } from './dto/admin.dto';
 import { UpdateAdminDto } from './dto/admin.dto';
 import { sign } from 'jsonwebtoken';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Admin } from './entities/admin.entity';
-import { Repository } from 'typeorm';
 import { HttpError } from 'src/common/http/error.http';
 import { env } from 'src/common/config';
+import { InjectModel } from '@nestjs/mongoose';
+import { Admin } from './schemas/admin.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AdminService {
-  constructor(@InjectRepository(Admin) private readonly adminRepo: Repository<Admin>) {}
+  constructor(@InjectModel(Admin.name) private readonly adminModel: Model<Admin>) {}
 
   async create(dto: CreateAdminDto) {
-    const login_taken = await this.adminRepo.findOne({
-      where: { login: dto.login },
-    });
-
+    const login_taken = await this.adminModel.findOne({ login: dto.login }).exec();
     if (login_taken) HttpError({ code: 'LOGIN_TAKEN' });
 
-    const admin = this.adminRepo.create({
+    const admin = new this.adminModel({
       login: dto.login,
       password: await hash(dto.password, 10),
     });
 
-    return await this.adminRepo.save(admin);
+    return await admin.save();
   }
 
   async login(dto: LoginDto) {
-    const admin = await this.adminRepo.findOneBy({ login: dto.login });
+    const admin = await this.adminModel.findOne({ login: dto.login }).exec();
     if (!admin) HttpError({ code: 'ADMIN_NOT_FOUND' });
 
     const password_valid = await compare(dto.password, admin.password);
@@ -47,18 +44,18 @@ export class AdminService {
   }
 
   async findAll() {
-    return this.adminRepo.find({ order: { id: 'DESC' } });
+    return this.adminModel.find().exec();
   }
 
   async findOne(id: number) {
-    const admin = await this.adminRepo.findOneBy({ id });
+    const admin = await this.adminModel.findOne({ id });
     if (!admin) HttpError({ code: 'ADMIN_NOT_FOUND' });
 
     return admin;
   }
 
   async update(id: number, dto: UpdateAdminDto) {
-    const admin = await this.adminRepo.findOneBy({ id });
+    const admin = await this.adminModel.findOne({ id });
     if (!admin) HttpError({ code: 'ADMIN_NOT_FOUND' });
 
     for (const key in dto) {
@@ -67,6 +64,6 @@ export class AdminService {
       }
     }
 
-    return await this.adminRepo.save(admin);
+    return await this.adminModel.updateOne({ id }, { $set: dto });
   }
 }

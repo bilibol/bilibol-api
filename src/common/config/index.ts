@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { bool, cleanEnv, num, str } from 'envalid';
+import { cleanEnv, num, str } from 'envalid';
 config();
 
 export const env = cleanEnv(process.env, {
@@ -7,12 +7,7 @@ export const env = cleanEnv(process.env, {
   PORT: num(),
 
   // Database
-  DB_HOST: str(),
-  DB_PORT: num(),
-  DB_USER: str(),
-  DB_PASSWORD: str(),
-  DB_NAME: str(),
-  DB_SYNC: bool(),
+  MONGO_URI: str(),
 
   // Redis
   REDIS_HOST: str(),

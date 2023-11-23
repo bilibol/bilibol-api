@@ -1,20 +1,10 @@
-version: '3.7'
+version: '3.8'
 services:
-  mysql:
-    image: mysql:latest
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
+  mongodb:
+    image: mongo
     ports:
-      - 3306:3306
+      - '27017:27017'
     volumes:
-      - mysql_data:/var/lib/mysql
-  adminer:
-    image: adminer:latest
-    environment:
-      ADMINER_DEFAULT_SERVER: mysql
-    ports:
-      - 8080:8080
-
+      - dbdata:/data/db
 volumes:
-  mysql_data:
+  dbdata:
